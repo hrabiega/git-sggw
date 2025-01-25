@@ -146,6 +146,43 @@ def dice():
     bet_amount = session.get('bet_amount', 1)  # Domyślnie 1 PLN, jeśli brak stawki w sesji
     return render_template('dice.html', balance=user.balance, bet_amount=bet_amount)
 
+
+@app.route('/roulette', methods=['GET', 'POST'])
+def roulette():
+    if request.method == 'POST':
+        # Pobieranie danych od użytkownika
+        bet_amount = int(request.form['bet_amount'])
+        bet_choice = request.form['bet_choice']
+
+        # Przykładowa obsługa wyniku w backendzie (opcjonalnie)
+        import random
+        result_number = random.randint(1, 36)
+        result_color = "red" if result_number % 2 != 0 else "black"
+
+        # Wygrana/przegrana logika
+        win = False
+        if bet_choice in ['red', 'black'] and bet_choice == result_color:
+            win = True
+            payout = bet_amount * 2
+        elif bet_choice.isdigit() and int(bet_choice) == result_number:
+            win = True
+            payout = bet_amount * 36
+        else:
+            payout = 0
+
+        # Przykład przekazania wyniku do szablonu
+        return render_template('roulette.html',
+                               balance=1000 + (payout if win else -bet_amount),
+                               bet_amount=bet_amount,
+                               bet_choice=bet_choice,
+                               result_number=result_number,
+                               result_color=result_color,
+                               win=win,
+                               payout=payout)
+
+    # GET request - renderowanie strony
+    return render_template('roulette.html', balance=1000)
+
 @app.route('/account')
 def account():
     if 'user_id' not in session:

@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6cc7301f-1006-4179-87f7-e1b03f24e535" name="Changes" comment="dodanie administratora i panelu admina (zmiana rzeczy u uzytkownikow)">
-      <change afterPath="$PROJECT_DIR$/templates/dice.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/roulette.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/instance/casino.db" beforeDir="false" afterPath="$PROJECT_DIR$/instance/casino.db" afterDir="false" />
@@ -20,6 +20,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -38,12 +39,12 @@
     &quot;assignee&quot;: &quot;hrabiega&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/hrabiega/git-sggw.git&quot;,
-    &quot;accountId&quot;: &quot;944003e5-4f6e-4523-b1e7-82cc81f54e8d&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/hrabiega/git-sggw.git",
+    "accountId": "1c3b20e3-6e0c-4fef-bdc3-28167155ad0d"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -54,11 +55,12 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
     "Python.create_admin.executor": "Run",
     "Python.main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "dev"
+    "git-widget-placeholder": "main"
   }
 }]]></component>
   <component name="SharedIndexes">
