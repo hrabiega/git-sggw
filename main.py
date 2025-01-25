@@ -1,8 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from datetime import datetime, timedelta
-import random
+from datetime import datetime
 
 # Inicjalizacja aplikacji Flask
 def create_app():
@@ -172,11 +171,21 @@ def change_password():
     flash('Hasło zostało zmienione.', 'success')
     return redirect(url_for('account'))
 
+
 @app.route('/logout')
 def logout():
     session.clear()  # Usuwa wszystkie dane sesji
     flash('Zostałeś wylogowany.', 'success')
     return redirect(url_for('home'))  # Przekierowanie na stronę główną lub stronę logowania
+
+@app.route('/admin_panel')
+def admin_panel():
+    if 'user_id' not in session or session['role'] != 'admin':
+        flash('Brak dostępu!', 'danger')
+        return redirect(url_for('home'))
+
+    # Tutaj możesz dodać logikę, którą chcesz, żeby była widoczna w panelu admina
+    return render_template('admin_panel.html')
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -187,10 +196,66 @@ def admin():
     users = User.query.all()
     return render_template('admin.html', users=users)
 
+@app.route('/change_role/<int:user_id>', methods=['POST'])
+def change_role(user_id):
+    user = User.query.get(user_id)
+    if user:
+        user.role = request.form['role']
+        db.session.commit()
+        flash('Rola użytkownika została zmieniona.', 'success')
+    return redirect(url_for('admin_users'))
+
+@app.route('/change_balance/<int:user_id>', methods=['POST'])
+def change_balance(user_id):
+    user = User.query.get(user_id)
+    if user:
+        user.balance = request.form['balance']
+        db.session.commit()
+        flash('Bilans użytkownika został zmieniony.', 'success')
+    return redirect(url_for('admin_users'))
+
+@app.route('/change_password_user/<int:user_id>', methods=['POST'])
+def change_password_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        hashed_password = bcrypt.generate_password_hash(request.form['new_password']).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('Hasło użytkownika zostało zmienione.', 'success')
+    return redirect(url_for('admin_users'))
+
+@app.route('/admin_users')
+def admin_users():
+    users = User.query.all()
+    return render_template('admin_users.html', users=users)
+
+@app.route('/admin_stats')
+def admin_stats():
+    # Tutaj musisz dodać logikę do generowania statystyk kasyna
+    # Może to być ogólna suma wygranych, przegranych itp.
+    return render_template('admin_stats.html')
+
+
 # Obsługa bazy danych
 @app.before_request
 def setup_database():
     db.create_all()
+
+    # Dodanie domyślnego admina, jeśli tabela jest pusta
+    if User.query.count() == 0:
+        # Tworzenie użytkownika admin
+        hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
+        admin_user = User(
+            first_name='Admin',
+            last_name='Adminowski',
+            username='admin',
+            password=hashed_password,
+            birth_date=datetime(1980, 1, 1),  # ustawienie pełnoletności
+            role='admin'
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print('Dodano domyślnego użytkownika admin')
 
 if __name__ == '__main__':
     app.run(debug=True)
