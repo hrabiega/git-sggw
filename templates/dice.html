@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gra w Kości</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1c1c1c;
+            color: #f5f5f5;
+            font-family: 'Arial', sans-serif;
+        }
+        h1 {
+            color: gold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .dice {
+            font-size: 100px;
+            margin-top: 20px;
+        }
+        .btn-roll {
+            font-size: 18px;
+            background-color: #28a745;
+            border-color: #28a745;
+            padding: 10px 20px;
+        }
+        .btn-roll:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .btn-reset {
+            background-color: #dc3545;
+        }
+        .btn-reset:hover {
+            background-color: #c82333;
+        }
+        .result-message {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .win-message {
+            color: #28a745; /* Zielony kolor */
+        }
+        .lose-message {
+            color: #dc3545; /* Czerwony kolor */
+        }
+        .range-value {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        /* Zmiana koloru kropki wyboru na złoty */
+        .form-check-input:checked {
+            background-color: gold;
+            border-color: gold;
+        }
+
+        .form-check-input {
+            background-color: #fff;
+            border-color: #ccc;
+        }
+
+        .form-check-label {
+            color: #fff;
+            font-weight: normal;
+        }
+
+        .form-check-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(255, 223, 0, 0.25);
+        }
+
+        /* Zmiana koloru suwaka na złoty */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 10px;
+            background: #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 10px;
+            background: gold;
+            border-radius: 5px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: gold;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        input[type="range"]::-moz-range-track {
+            height: 10px;
+            background: gold;
+            border-radius: 5px;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: gold;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-ms-track {
+            height: 10px;
+            background: gold;
+            border-radius: 5px;
+            border-color: transparent;
+            color: transparent;
+            /* Required for proper appearance in IE */
+            background-color: transparent;
+        }
+
+        input[type="range"]::-ms-thumb {
+            width: 20px;
+            height: 20px;
+            background: gold;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Kasyno</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto d-flex align-items-center">
+                    <li class="nav-item me-3">
+                        <span class="navbar-text">
+                            Twój balans: <span id="balance">{{ balance }} PLN</span>
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account">Moje Konto</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Wyloguj</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container text-center">
+        <h1>Gra w Kości</h1>
+        <p>Wybierz przedział i postaw kwotę!</p>
+
+        <!-- Wynik rzutu -->
+        <div class="dice mt-4">
+            {% if dice_roll %}
+                <p>Wynik rzutu: {{ dice_roll }}</p>
+            {% else %}
+                <p>Nie rzucono jeszcze kośćmi!</p>
+            {% endif %}
+        </div>
+
+        {% if outcome_message %}
+            <div class="result-message {% if outcome_class == 'alert-success' %}win-message{% else %}lose-message{% endif %}">
+                <h3>{{ outcome_message }}</h3>
+            </div>
+        {% endif %}
+
+        <!-- Form do obstawiania kwoty i wybierania przedziału -->
+        <form action="/dice" method="POST">
+            <div class="mb-3">
+                <label for="amount" class="form-label">Kwota (PLN)</label>
+                <input type="range" class="form-range" id="amount" name="amount" min="1" max="{{ balance }}" step="1" value="{{ bet_amount }}" onchange="updateAmountDisplay()">
+                <div class="range-value">
+                    Kwota: <span id="amount-display">{{ bet_amount }} PLN</span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="range" class="form-label">Wybierz przedział</label>
+                <!-- Radio buttons z zaznaczoną wartością domyślną -->
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="range" id="range1" value="1-3" {% if range_choice == '1-3' %}checked{% else %}checked{% endif %}>
+                    <label class="form-check-label" for="range1">1-3</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="range" id="range2" value="4-6" {% if range_choice == '4-6' %}checked{% endif %}>
+                    <label class="form-check-label" for="range2">4-6</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-roll">Rzuć Kośćmi</button>
+        </form>
+
+        <br>
+        <a href="/casino" class="btn btn-secondary">Powrót do Kasyna</a>
+    </div>
+
+    <script>
+        function updateAmountDisplay() {
+            var amount = document.getElementById('amount').value;
+            document.getElementById('amount-display').textContent = amount + " PLN";
+        }
+    </script>
+</body>
+</html>

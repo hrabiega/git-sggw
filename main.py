@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from datetime import datetime
+import random
 
 # Inicjalizacja aplikacji Flask
 def create_app():
@@ -109,6 +110,41 @@ def casino():
     # Przekazanie balansu do szablonu
     return render_template('casino.html', balance=user.balance)
 
+@app.route('/dice', methods=['GET', 'POST'])
+def dice():
+    if 'user_id' not in session:
+        flash('Musisz się zalogować, aby grać w kości.', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+
+    if request.method == 'POST':
+        bet_amount = int(request.form['amount'])  # Kwota stawki
+        range_choice = request.form['range']  # Przedział
+
+        # Zapisz wartość stawki w sesji, aby zapamiętać ją na kolejne rundy
+        session['bet_amount'] = bet_amount
+
+        # Losowanie rzutu
+        dice_roll = random.randint(1, 6)
+
+        # Sprawdzanie, czy użytkownik wygrał
+        if range_choice == "1-3" and dice_roll <= 3 or range_choice == "4-6" and dice_roll > 3:
+            outcome_message = f"Wygrałeś {bet_amount} PLN!"
+            user.balance += bet_amount  # Aktualizacja balansu
+            outcome_class = 'alert-success'
+        else:
+            outcome_message = f"Przegrałeś {bet_amount} PLN."
+            user.balance -= bet_amount  # Odjęcie stawki od balansu
+            outcome_class = 'alert-danger'
+
+        db.session.commit()
+        return render_template('dice.html', dice_roll=dice_roll, outcome_message=outcome_message, outcome_class=outcome_class, balance=user.balance)
+
+    # Jeśli sesja zawiera zapisaną stawkę, użyj jej jako wartości początkowej
+    bet_amount = session.get('bet_amount', 1)  # Domyślnie 1 PLN, jeśli brak stawki w sesji
+    return render_template('dice.html', balance=user.balance, bet_amount=bet_amount)
 
 @app.route('/account')
 def account():
