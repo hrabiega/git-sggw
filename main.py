@@ -134,10 +134,26 @@ def dice():
             outcome_message = f"Wygrałeś {bet_amount} PLN!"
             user.balance += bet_amount  # Aktualizacja balansu
             outcome_class = 'alert-success'
+
+            # Zapisanie wygranej w tabeli Transaction
+            transaction = Transaction(
+                user_id=user.id,
+                amount=bet_amount,
+                type='win'
+            )
+            db.session.add(transaction)
         else:
             outcome_message = f"Przegrałeś {bet_amount} PLN."
             user.balance -= bet_amount  # Odjęcie stawki od balansu
             outcome_class = 'alert-danger'
+
+            # Zapisanie przegranej w tabeli Transaction
+            transaction = Transaction(
+                user_id=user.id,
+                amount=bet_amount,
+                type='loss'
+            )
+            db.session.add(transaction)
 
         db.session.commit()
         return render_template('dice.html', dice_roll=dice_roll, outcome_message=outcome_message, outcome_class=outcome_class, balance=user.balance)
@@ -145,7 +161,6 @@ def dice():
     # Jeśli sesja zawiera zapisaną stawkę, użyj jej jako wartości początkowej
     bet_amount = session.get('bet_amount', 1)  # Domyślnie 1 PLN, jeśli brak stawki w sesji
     return render_template('dice.html', balance=user.balance, bet_amount=bet_amount)
-
 
 @app.route('/roulette', methods=['GET', 'POST'])
 def roulette():
@@ -180,9 +195,25 @@ def roulette():
         if win:
             user.balance += payout
             flash(f'Gratulacje! Wygrałeś {payout} PLN.', 'success')
+
+            # Zapisanie wygranej w tabeli Transaction
+            transaction = Transaction(
+                user_id=user.id,
+                amount=payout,
+                type='win'
+            )
+            db.session.add(transaction)
         else:
             user.balance -= bet_amount
             flash(f'Niestety, przegrałeś {bet_amount} PLN.', 'danger')
+
+            # Zapisanie przegranej w tabeli Transaction
+            transaction = Transaction(
+                user_id=user.id,
+                amount=bet_amount,
+                type='loss'
+            )
+            db.session.add(transaction)
 
         db.session.commit()
 
@@ -346,10 +377,16 @@ def admin_users():
 
 @app.route('/admin_stats')
 def admin_stats():
-    # Tutaj musisz dodać logikę do generowania statystyk kasyna
-    # Może to być ogólna suma wygranych, przegranych itp.
-    return render_template('admin_stats.html')
+    if 'user_id' not in session or session['role'] != 'admin':
+        flash('Brak dostępu!', 'danger')
+        return redirect(url_for('home'))
 
+    # Podsumowanie zysków kasyna
+    total_wins = db.session.query(db.func.sum(Transaction.amount)).filter(Transaction.type == 'win').scalar() or 0
+    total_losses = db.session.query(db.func.sum(Transaction.amount)).filter(Transaction.type == 'loss').scalar() or 0
+    casino_profit = total_losses - total_wins  # Zysk kasyna (przegrane - wygrane)
+
+    return render_template('admin_stats.html', total_wins=total_wins, total_losses=total_losses, casino_profit=casino_profit)
 
 # Obsługa bazy danych
 @app.before_request
