@@ -187,10 +187,10 @@ def roulette():
 
         if bet_choice in ['red', 'black'] and bet_choice == result_color:
             win = True
-            payout = bet_amount * 2
+            payout = bet_amount
         elif bet_choice.isdigit() and int(bet_choice) == result_number:
             win = True
-            payout = bet_amount * 36
+            payout = bet_amount * 35
 
         if win:
             user.balance += payout
