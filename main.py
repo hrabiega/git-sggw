@@ -149,30 +149,45 @@ def dice():
 
 @app.route('/roulette', methods=['GET', 'POST'])
 def roulette():
+    if 'user_id' not in session:
+        flash('Musisz się zalogować, aby grać w ruletkę.', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+
     if request.method == 'POST':
-        # Pobieranie danych od użytkownika
         bet_amount = int(request.form['bet_amount'])
         bet_choice = request.form['bet_choice']
 
-        # Przykładowa obsługa wyniku w backendzie (opcjonalnie)
-        import random
-        result_number = random.randint(1, 36)
+        if bet_amount > user.balance:
+            flash('Nie masz wystarczających środków na ten zakład.', 'danger')
+            return redirect(url_for('roulette'))
+
+        result_number = random.randint(0, 36)
         result_color = "red" if result_number % 2 != 0 else "black"
 
-        # Wygrana/przegrana logika
         win = False
+        payout = 0
+
         if bet_choice in ['red', 'black'] and bet_choice == result_color:
             win = True
             payout = bet_amount * 2
         elif bet_choice.isdigit() and int(bet_choice) == result_number:
             win = True
             payout = bet_amount * 36
-        else:
-            payout = 0
 
-        # Przykład przekazania wyniku do szablonu
+        if win:
+            user.balance += payout
+            flash(f'Gratulacje! Wygrałeś {payout} PLN.', 'success')
+        else:
+            user.balance -= bet_amount
+            flash(f'Niestety, przegrałeś {bet_amount} PLN.', 'danger')
+
+        db.session.commit()
+
         return render_template('roulette.html',
-                               balance=1000 + (payout if win else -bet_amount),
+                               balance=user.balance,
                                bet_amount=bet_amount,
                                bet_choice=bet_choice,
                                result_number=result_number,
@@ -180,8 +195,7 @@ def roulette():
                                win=win,
                                payout=payout)
 
-    # GET request - renderowanie strony
-    return render_template('roulette.html', balance=1000)
+    return render_template('roulette.html', balance=user.balance)
 
 @app.route('/account')
 def account():
@@ -219,6 +233,34 @@ def deposit():
         flash('Błąd podczas wpłacania środków.', 'danger')
 
     return redirect(url_for('account'))
+
+@app.route("/withdraw", methods=["POST"])
+def withdraw():
+    if 'user_id' not in session:
+        flash('Musisz się zalogować, aby wypłacić pieniądze.', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+    if not user:
+        flash('Nie znaleziono użytkownika.', 'danger')
+        return redirect(url_for('logout'))
+
+    try:
+        amount = float(request.form.get("withdraw_amount", 0))
+        if amount > 0:
+            if user.balance >= amount:
+                user.balance -= amount
+                db.session.commit()
+                flash(f"Wypłacono {amount} PLN z Twojego konta.", "success")
+            else:
+                flash("Niewystarczające środki na koncie.", "danger")
+        else:
+            flash("Kwota musi być większa niż 0.", "danger")
+    except ValueError:
+        flash("Nieprawidłowa kwota.", "danger")
+
+    return redirect(url_for("account"))
 
 @app.route('/change_password', methods=['POST'])
 def change_password():

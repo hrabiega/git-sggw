@@ -63,7 +63,7 @@
             <!-- Wpłatomat -->
             <div class="col-md-6">
                 <div class="card p-3">
-                    <h2>Wpłatomat</h2>
+                    <h2>Wpłać środki</h2>
                     <form action="/deposit" method="POST">
                         <div class="mb-3">
                             <label for="amount" class="form-label">Kwota do wpłaty (PLN):</label>
@@ -71,6 +71,19 @@
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Wpłać</button>
                     </form>
+                </div>
+            </div>
+            <!-- Wypłatomat -->
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h2>Wypłać środki</h2>
+                    <form action="/withdraw" method="POST">
+                        <div class="mb-3">
+                            <label for="withdraw_amount" class="form-label">Kwota do wypłaty (PLN):</label>
+                            <input type="number" class="form-control" id="withdraw_amount" name="withdraw_amount" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Wypłać</button>
+                     </form>
                 </div>
             </div>
         </div>
