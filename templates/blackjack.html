@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1c1c1c;
+            color: #f5f5f5;
+            font-family: 'Arial', sans-serif;
+        }
+        h1 {
+            color: gold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .player-cards, .dealer-cards {
+            font-size: 1.5rem;
+            margin-top: 20px;
+        }
+        .balance-info {
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        .btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .btn-start {
+            background-color: gold;
+            border-color: gold;
+        }
+        .btn-start:hover {
+            background-color: #d4af37;
+            border-color: #d4af37;
+        }
+        .btn-hit {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-hit:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .btn-stand {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-stand:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        .btn-reset {
+            background-color: gold;
+            border-color: gold;
+        }
+        .btn-reset:hover {
+            background-color: #d4af37;
+            border-color: #d4af37;
+        }
+        .form-label {
+            font-size: 1.2rem;
+        }
+        .form-check-label {
+            color: #fff;
+        }
+        .form-check-input {
+            background-color: #fff;
+            border-color: #ccc;
+        }
+        .form-check-input:checked {
+            background-color: gold;
+            border-color: gold;
+        }
+        .range-value {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        /* Zmiana koloru suwaka na złoty */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 10px;
+            background: #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 10px;
+            background: gold;
+            border-radius: 5px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: gold;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        input[type="range"]::-moz-range-track {
+            height: 10px;
+            background: gold;
+            border-radius: 5px;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: gold;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-ms-track {
+            height: 10px;
+            background: gold;
+            border-radius: 5px;
+            border-color: transparent;
+            color: transparent;
+        }
+
+        input[type="range"]::-ms-thumb {
+            width: 20px;
+            height: 20px;
+            background: gold;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Kasyno</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto d-flex align-items-center">
+                    <li class="nav-item me-3">
+                        <span class="navbar-text">
+                            Twój balans: <span id="balance">{{ balance }} PLN</span>
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account">Moje Konto</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Wyloguj</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container text-center">
+        <h1>Blackjack</h1>
+
+        <div class="balance-info">
+            <p>Twój balans: {{ balance }} PLN</p>
+        </div>
+
+        {% if game %}
+            <div class="player-cards">
+                <h2>Twoje karty ({{ game.player_cards | sum }}):</h2>
+                <p>{{ game.player_cards }}</p>
+            </div>
+
+            <div class="dealer-cards">
+                <h2>Karty krupiera:</h2>
+                {% if not game.game_over %}
+                    <p>[{{ game.dealer_cards[0] }}, ?]</p>
+                {% else %}
+                    <p>{{ game.dealer_cards }} ({{ game.dealer_cards | sum }})</p>
+                {% endif %}
+            </div>
+
+            {% if not game.game_over %}
+                <form method="post">
+                    <button type="submit" name="action" value="hit" class="btn btn-hit">Dobierz kartę (Hit)</button>
+                    <button type="submit" name="action" value="stand" class="btn btn-stand">Zostań (Stand)</button>
+                </form>
+            {% else %}
+                <form method="post">
+                    <button type="submit" name="action" value="reset" class="btn btn-reset">Zagraj ponownie</button>
+                </form>
+            {% endif %}
+        {% else %}
+            <form method="post">
+                <label for="bet" class="form-label">Wybierz stawkę:</label>
+                <input type="range" class="form-range" id="bet" name="bet" min="1" max="{{ balance }}" step="1" value="{{ bet_amount }}" onchange="updateAmountDisplay()">
+                <div class="range-value">
+                    Kwota: <span id="amount-display">{{ bet_amount }} PLN</span>
+                </div>
+                <button type="submit" class="btn btn-start">Rozpocznij grę</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <script>
+        function updateAmountDisplay() {
+            var amount = document.getElementById('bet').value;
+            document.getElementById('amount-display').textContent = amount + " PLN";
+        }
+    </script>
+</body>
+</html>
