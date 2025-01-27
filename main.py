@@ -228,6 +228,105 @@ def roulette():
 
     return render_template('roulette.html', balance=user.balance)
 
+@app.route('/blackjack', methods=['GET', 'POST'])
+def blackjack():
+    if 'user_id' not in session:
+        flash('Musisz się zalogować, aby grać w Blackjack.', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+
+    # Obsługa przycisku reset
+    if request.method == 'POST' and request.form.get('action') == 'reset':
+        session.pop('blackjack', None)
+        return redirect(url_for('blackjack'))
+
+    # Inicjalizacja gry lub pobranie jej stanu z sesji
+    if 'blackjack' not in session:
+        if request.method == 'POST' and 'bet' in request.form:
+            bet = float(request.form.get('bet'))
+
+            if bet > user.balance:
+                flash('Nie masz wystarczających środków na ten zakład.', 'danger')
+                return redirect(url_for('blackjack'))
+
+            session['blackjack'] = {
+                'player_cards': [random.randint(1, 11), random.randint(1, 11)],
+                'dealer_cards': [random.randint(1, 11), random.randint(1, 11)],
+                'bet': bet,
+                'game_over': False
+            }
+        else:
+            return render_template('blackjack.html', balance=user.balance, game=None)
+
+    game = session['blackjack']
+
+    # Obsługa akcji gracza
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        if action == 'hit' and not game['game_over']:
+            game['player_cards'].append(random.randint(1, 11))
+
+            # Sprawdzenie, czy gracz przegrał (przekroczył 21)
+            if sum(game['player_cards']) > 21:
+                game['game_over'] = True
+                user.balance -= game['bet']
+                db.session.commit()
+
+                # Zapisanie przegranej w tabeli Transaction
+                transaction = Transaction(
+                    user_id=user.id,
+                    amount=game['bet'],
+                    type='loss'
+                )
+                db.session.add(transaction)
+
+                flash(f'Przegrałeś {game["bet"]} PLN. Suma kart przekroczyła 21.', 'danger')
+
+        elif action == 'stand' and not game['game_over']:
+            # Tura krupiera
+            while sum(game['dealer_cards']) < 17:
+                game['dealer_cards'].append(random.randint(1, 11))
+
+            player_sum = sum(game['player_cards'])
+            dealer_sum = sum(game['dealer_cards'])
+
+            if dealer_sum > 21 or player_sum > dealer_sum:  # Wygrana gracza
+                user.balance += game['bet']
+
+                # Zapisanie wygranej w tabeli Transaction
+                transaction = Transaction(
+                    user_id=user.id,
+                    amount=game['bet'],
+                    type='win'
+                )
+                db.session.add(transaction)
+
+                flash(f'Wygrałeś {game["bet"]} PLN!', 'success')
+            elif player_sum < dealer_sum:  # Przegrana gracza
+                user.balance -= game['bet']
+
+                # Zapisanie przegranej w tabeli Transaction
+                transaction = Transaction(
+                    user_id=user.id,
+                    amount=game['bet'],
+                    type='loss'
+                )
+                db.session.add(transaction)
+
+                flash(f'Przegrałeś {game["bet"]} PLN.', 'danger')
+            else:  # Remis
+                flash('Remis. Stawka zostaje zwrócona.', 'info')
+
+            game['game_over'] = True
+            db.session.commit()
+
+        session['blackjack'] = game
+
+    return render_template('blackjack.html', game=game, balance=user.balance)
+
 @app.route('/account')
 def account():
     if 'user_id' not in session:
