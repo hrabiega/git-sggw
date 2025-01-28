@@ -47,20 +47,20 @@
     <div class="container mt-5">
         <h1 class="text-center">Moje Konto</h1>
         <div class="row mt-4">
-            <!-- Informacje o użytkowniku -->
+
             <div class="col-md-6">
                 <div class="card p-3">
                     <h2>Twoje dane</h2>
                     <p><strong>Imię i nazwisko:</strong> {{ user.first_name }} {{ user.last_name }}</p>
                     <p><strong>Data urodzenia:</strong> {{ user.birth_date.strftime('%Y-%m-%d') }}</p>
                     <p><strong>Twój balans:</strong> {{ user.balance }} PLN</p>
-                    <!-- Przycisk do panelu admina, jeśli użytkownik jest adminem -->
+
                     {% if user.role == 'admin' %}
                     <a href="/admin_panel" class="btn btn-primary w-100 mt-3">Panel Administracyjny</a>
                     {% endif %}
                 </div>
             </div>
-            <!-- Wpłatomat -->
+
             <div class="col-md-6">
                 <div class="card p-3">
                     <h2>Wpłać środki</h2>
@@ -73,7 +73,7 @@
                     </form>
                 </div>
             </div>
-            <!-- Wypłatomat -->
+
             <div class="col-md-6">
                 <div class="card p-3">
                     <h2>Wypłać środki</h2>
@@ -87,7 +87,7 @@
                 </div>
             </div>
         </div>
-        <!-- Zmiana hasła -->
+        
         <div class="row mt-4">
             <div class="col-md-12">
                 <div class="card p-3">
