@@ -4,7 +4,7 @@ from flask_bcrypt import Bcrypt
 from datetime import datetime
 import random
 
-# Inicjalizacja aplikacji Flask
+
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///casino.db'
@@ -16,7 +16,7 @@ app = create_app()
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
-# Modele
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(100), nullable=False)
@@ -25,22 +25,22 @@ class User(db.Model):
     password = db.Column(db.String(50), nullable=False)
     balance = db.Column(db.Float, default=0.0)
     birth_date = db.Column(db.Date, nullable=False)
-    role = db.Column(db.String(10), default='user')  # user or admin
+    role = db.Column(db.String(10), default='user')
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
-    type = db.Column(db.String(20), nullable=False)  # deposit, win, loss
+    type = db.Column(db.String(20), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-# Funkcja walidująca pełnoletność
+
 def is_adult(birth_date):
     today = datetime.utcnow()
     age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
     return age >= 18
 
-# Trasy
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -58,14 +58,14 @@ def register():
             flash('Musisz mieć ukończone 18 lat, aby założyć konto.', 'danger')
             return redirect(url_for('register'))
 
-        # Haszowanie hasła przed zapisaniem w bazie
+
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
         user = User(
             first_name=first_name,
             last_name=last_name,
             username=username,
-            password=hashed_password,  # Zapisujemy hasło haszowane
+            password=hashed_password,
             birth_date=birth_date
         )
         db.session.add(user)
@@ -83,7 +83,7 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
 
-        # Sprawdzanie, czy użytkownik istnieje i porównanie hasła
+
         if user and bcrypt.check_password_hash(user.password, password):
             session['user_id'] = user.id
             session['role'] = user.role
@@ -100,14 +100,14 @@ def casino():
         flash('Musisz się zalogować, aby uzyskać dostęp do kasyna.', 'danger')
         return redirect(url_for('login'))
 
-    # Pobranie użytkownika z bazy danych
+
     user_id = session['user_id']
     user = User.query.get(user_id)
     if not user:
         flash('Nie znaleziono użytkownika.', 'danger')
         return redirect(url_for('logout'))
 
-    # Przekazanie balansu do szablonu
+
     return render_template('casino.html', balance=user.balance)
 
 @app.route('/dice', methods=['GET', 'POST'])
@@ -120,22 +120,20 @@ def dice():
     user = User.query.get(user_id)
 
     if request.method == 'POST':
-        bet_amount = int(request.form['amount'])  # Kwota stawki
-        range_choice = request.form['range']  # Przedział
+        bet_amount = int(request.form['amount'])
+        range_choice = request.form['range']
 
-        # Zapisz wartość stawki w sesji, aby zapamiętać ją na kolejne rundy
         session['bet_amount'] = bet_amount
 
-        # Losowanie rzutu
         dice_roll = random.randint(1, 6)
 
-        # Sprawdzanie, czy użytkownik wygrał
+
         if range_choice == "1-3" and dice_roll <= 3 or range_choice == "4-6" and dice_roll > 3:
             outcome_message = f"Wygrałeś {bet_amount} PLN!"
-            user.balance += bet_amount  # Aktualizacja balansu
+            user.balance += bet_amount
             outcome_class = 'alert-success'
 
-            # Zapisanie wygranej w tabeli Transaction
+
             transaction = Transaction(
                 user_id=user.id,
                 amount=bet_amount,
@@ -144,10 +142,10 @@ def dice():
             db.session.add(transaction)
         else:
             outcome_message = f"Przegrałeś {bet_amount} PLN."
-            user.balance -= bet_amount  # Odjęcie stawki od balansu
+            user.balance -= bet_amount
             outcome_class = 'alert-danger'
 
-            # Zapisanie przegranej w tabeli Transaction
+
             transaction = Transaction(
                 user_id=user.id,
                 amount=bet_amount,
@@ -158,8 +156,8 @@ def dice():
         db.session.commit()
         return render_template('dice.html', dice_roll=dice_roll, outcome_message=outcome_message, outcome_class=outcome_class, balance=user.balance)
 
-    # Jeśli sesja zawiera zapisaną stawkę, użyj jej jako wartości początkowej
-    bet_amount = session.get('bet_amount', 1)  # Domyślnie 1 PLN, jeśli brak stawki w sesji
+
+    bet_amount = session.get('bet_amount', 1)
     return render_template('dice.html', balance=user.balance, bet_amount=bet_amount)
 
 @app.route('/roulette', methods=['GET', 'POST'])
@@ -196,7 +194,7 @@ def roulette():
             user.balance += payout
             flash(f'Gratulacje! Wygrałeś {payout} PLN.', 'success')
 
-            # Zapisanie wygranej w tabeli Transaction
+
             transaction = Transaction(
                 user_id=user.id,
                 amount=payout,
@@ -207,7 +205,7 @@ def roulette():
             user.balance -= bet_amount
             flash(f'Niestety, przegrałeś {bet_amount} PLN.', 'danger')
 
-            # Zapisanie przegranej w tabeli Transaction
+
             transaction = Transaction(
                 user_id=user.id,
                 amount=bet_amount,
@@ -237,12 +235,10 @@ def blackjack():
     user_id = session['user_id']
     user = User.query.get(user_id)
 
-    # Obsługa przycisku reset
     if request.method == 'POST' and request.form.get('action') == 'reset':
         session.pop('blackjack', None)
         return redirect(url_for('blackjack'))
 
-    # Inicjalizacja gry lub pobranie jej stanu z sesji
     if 'blackjack' not in session:
         if request.method == 'POST' and 'bet' in request.form:
             bet = float(request.form.get('bet'))
@@ -262,20 +258,18 @@ def blackjack():
 
     game = session['blackjack']
 
-    # Obsługa akcji gracza
+
     if request.method == 'POST':
         action = request.form.get('action')
 
         if action == 'hit' and not game['game_over']:
             game['player_cards'].append(random.randint(1, 11))
 
-            # Sprawdzenie, czy gracz przegrał (przekroczył 21)
             if sum(game['player_cards']) > 21:
                 game['game_over'] = True
                 user.balance -= game['bet']
                 db.session.commit()
 
-                # Zapisanie przegranej w tabeli Transaction
                 transaction = Transaction(
                     user_id=user.id,
                     amount=game['bet'],
@@ -286,17 +280,16 @@ def blackjack():
                 flash(f'Przegrałeś {game["bet"]} PLN. Suma kart przekroczyła 21.', 'danger')
 
         elif action == 'stand' and not game['game_over']:
-            # Tura krupiera
+
             while sum(game['dealer_cards']) < 17:
                 game['dealer_cards'].append(random.randint(1, 11))
 
             player_sum = sum(game['player_cards'])
             dealer_sum = sum(game['dealer_cards'])
 
-            if dealer_sum > 21 or player_sum > dealer_sum:  # Wygrana gracza
+            if dealer_sum > 21 or player_sum > dealer_sum:
                 user.balance += game['bet']
 
-                # Zapisanie wygranej w tabeli Transaction
                 transaction = Transaction(
                     user_id=user.id,
                     amount=game['bet'],
@@ -308,7 +301,6 @@ def blackjack():
             elif player_sum < dealer_sum:  # Przegrana gracza
                 user.balance -= game['bet']
 
-                # Zapisanie przegranej w tabeli Transaction
                 transaction = Transaction(
                     user_id=user.id,
                     amount=game['bet'],
@@ -404,12 +396,12 @@ def change_password():
     user_id = session['user_id']
     user = User.query.get(user_id)
 
-    # Porównanie starego hasła z haszem w bazie danych
+
     if not user or not bcrypt.check_password_hash(user.password, old_password):
         flash('Stare hasło jest nieprawidłowe.', 'danger')
         return redirect(url_for('account'))
 
-    # Haszowanie nowego hasła przed zapisaniem go w bazie
+
     hashed_new_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
     user.password = hashed_new_password
     db.session.commit()
@@ -419,9 +411,9 @@ def change_password():
 
 @app.route('/logout')
 def logout():
-    session.clear()  # Usuwa wszystkie dane sesji
+    session.clear()
     flash('Zostałeś wylogowany.', 'success')
-    return redirect(url_for('home'))  # Przekierowanie na stronę główną lub stronę logowania
+    return redirect(url_for('home'))
 
 @app.route('/admin_panel')
 def admin_panel():
@@ -429,7 +421,7 @@ def admin_panel():
         flash('Brak dostępu!', 'danger')
         return redirect(url_for('home'))
 
-    # Tutaj możesz dodać logikę, którą chcesz, żeby była widoczna w panelu admina
+
     return render_template('admin_panel.html')
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -480,28 +472,40 @@ def admin_stats():
         flash('Brak dostępu!', 'danger')
         return redirect(url_for('home'))
 
-    # Podsumowanie zysków kasyna
     total_wins = db.session.query(db.func.sum(Transaction.amount)).filter(Transaction.type == 'win').scalar() or 0
     total_losses = db.session.query(db.func.sum(Transaction.amount)).filter(Transaction.type == 'loss').scalar() or 0
-    casino_profit = total_losses - total_wins  # Zysk kasyna (przegrane - wygrane)
+    casino_profit = total_losses - total_wins
 
-    return render_template('admin_stats.html', total_wins=total_wins, total_losses=total_losses, casino_profit=casino_profit)
 
-# Obsługa bazy danych
+    total_users = User.query.count()
+    total_transactions = Transaction.query.count()
+    average_balance = db.session.query(db.func.avg(User.balance)).scalar() or 0
+
+    richest_user = User.query.order_by(User.balance.desc()).first()
+
+    return render_template('admin_stats.html',
+                           total_wins=total_wins,
+                           total_losses=total_losses,
+                           casino_profit=casino_profit,
+                           total_users=total_users,
+                           total_transactions=total_transactions,
+                           average_balance=round(average_balance, 2),
+                           richest_user=richest_user)
+
 @app.before_request
 def setup_database():
     db.create_all()
 
-    # Dodanie domyślnego admina, jeśli tabela jest pusta
+
     if User.query.count() == 0:
-        # Tworzenie użytkownika admin
+
         hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
         admin_user = User(
             first_name='Admin',
             last_name='Adminowski',
             username='admin',
             password=hashed_password,
-            birth_date=datetime(1980, 1, 1),  # ustawienie pełnoletności
+            birth_date=datetime(1980, 1, 1),
             role='admin'
         )
         db.session.add(admin_user)
