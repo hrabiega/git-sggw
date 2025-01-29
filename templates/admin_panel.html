@@ -14,9 +14,9 @@
         h1 {
             color: gold;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            font-size: 48px;
-            font-weight: bold;
-            margin-bottom: 40px;
+            font-size: 48px; /* Zwiększenie rozmiaru napisu */
+            font-weight: bold; /* Pogrubienie nagłówka */
+            margin-bottom: 40px; /* Większa przestrzeń pod nagłówkiem */
         }
         .btn-primary {
             background-color: gold;
@@ -26,14 +26,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 400px;
-            width: 400px;
-            font-size: 28px;
+            height: 400px; /* Zmniejszenie wysokości przycisków */
+            width: 400px;  /* Zmniejszenie szerokości przycisków */
+            font-size: 28px; /* Większa czcionka */
             text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             transition: background-color 0.3s ease, transform 0.3s ease;
-            margin: 20px;
-            border-radius: 25px;
+            margin: 20px; /* Odstęp między przyciskami */
+            border-radius: 25px; /* Zaokrąglenie rogów */
         }
         .btn-primary:hover {
             background-color: darkorange;
@@ -42,12 +42,12 @@
         .btn-container {
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            height: 70vh;
-            gap: 40px;
+            align-items: flex-start; /* Ustawienie przycisków wyżej */
+            height: 70vh; /* Zmniejszenie wysokości kontenera, by przyciski były wyżej */
+            gap: 40px;  /* Większa przerwa między przyciskami */
         }
         .btn-container a {
-            width: 400px;
+            width: 400px; /* Szerokość przycisku */
         }
         .card {
             background-color: #2c2c2c;
@@ -71,7 +71,7 @@
     <div class="container mt-5">
         <h1 class="text-center">Panel Administracyjny</h1>
         <div class="btn-container">
-
+            <!-- Przyciski do wyboru panelu -->
             <a href="/admin_users" class="btn btn-primary">Użytkownicy</a>
             <a href="/admin_stats" class="btn btn-primary">Statystyki Kasyna</a>
         </div>
