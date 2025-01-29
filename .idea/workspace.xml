@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6cc7301f-1006-4179-87f7-e1b03f24e535" name="Changes" comment="dodanie administratora i panelu admina (zmiana rzeczy u uzytkownikow)">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/account.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/account.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/admin_panel.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_panel.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/admin_stats.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_stats.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/admin_users.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/admin_users.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/dice.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/dice.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home.html" afterDir="false" />
-    </list>
+    <list default="true" id="6cc7301f-1006-4179-87f7-e1b03f24e535" name="Changes" comment="dodanie administratora i panelu admina (zmiana rzeczy u uzytkownikow)" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -42,12 +33,12 @@
     &quot;assignee&quot;: &quot;hrabiega&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/hrabiega/git-sggw.git&quot;,
-    &quot;accountId&quot;: &quot;1c3b20e3-6e0c-4fef-bdc3-28167155ad0d&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/hrabiega/git-sggw.git",
+    "accountId": "944003e5-4f6e-4523-b1e7-82cc81f54e8d"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
