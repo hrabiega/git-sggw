@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statystyki - Panel Administracyjny</title>
+    <title>Statystyki Kasyna</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -11,45 +11,22 @@
             color: #f5f5f5;
             font-family: 'Arial', sans-serif;
         }
-        h1 {
+        h1, h2 {
             color: gold;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            font-size: 48px;
-            font-weight: bold;
-            margin-bottom: 40px;
         }
-        .card {
-            background-color: #2c2c2c;
-            border: 1px solid #555;
-            text-align: center;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-        .card-header {
-            font-weight: bold;
-            font-size: 18px;
-            color: gold;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
-        }
-        .card-title {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .btn-back {
+        .btn-primary {
             background-color: gold;
             border: none;
             color: black;
             font-weight: bold;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 18px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.3s ease, transform 0.3s ease;
         }
-        .btn-back:hover {
+        .btn-primary:hover {
             background-color: darkorange;
-            transform: scale(1.05);
+        }
+        .card {
+            background-color: #2c2c2c;
+            border: 1px solid #555;
         }
     </style>
 </head>
@@ -64,88 +41,17 @@
             </ul>
         </div>
     </nav>
-
     <div class="container mt-5">
         <h1 class="text-center">Statystyki Kasyna</h1>
-
         <div class="row mt-4">
-
-            <div class="col-md-4">
-                <div class="card mb-3">
-                    <div class="card-header">Zysk kasyna</div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ casino_profit }} PLN</h5>
-                    </div>
+            <div class="col-md-12">
+                <div class="card p-3">
+                    <h2>Ogólne statystyki</h2>
+                    <p><strong>Suma wygranych:</strong> {{ total_wins }} PLN</p>
+                    <p><strong>Suma przegranych:</strong> {{ total_losses }} PLN</p>
+                    <!-- Możesz dodać więcej szczegółowych statystyk -->
                 </div>
             </div>
-
-
-            <div class="col-md-4">
-                <div class="card mb-3">
-                    <div class="card-header">Łączne wygrane</div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ total_wins }} PLN</h5>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="col-md-4">
-                <div class="card mb-3">
-                    <div class="card-header">Łączne przegrane</div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ total_losses }} PLN</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mt-4">
-
-            <div class="col-md-3">
-                <div class="card mb-3">
-                    <div class="card-header">Liczba użytkowników</div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ total_users }}</h5>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="col-md-3">
-                <div class="card mb-3">
-                    <div class="card-header">Liczba transakcji</div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ total_transactions }}</h5>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="col-md-3">
-                <div class="card mb-3">
-                    <div class="card-header">Średni balans użytkowników</div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ average_balance }} PLN</h5>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="col-md-3">
-                <div class="card mb-3">
-                    <div class="card-header">Najbogatszy użytkownik</div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ richest_user.username }}</h5>
-                        <p class="card-text">Balans: {{ richest_user.balance }} PLN</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="text-center mt-5">
-            <a href="{{ url_for('admin_panel') }}" class="btn btn-back">Powrót do panelu</a>
         </div>
     </div>
 </body>
